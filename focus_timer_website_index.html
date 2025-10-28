@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Focus — Timer</title>
+  <style>
+    :root{
+      --bg: #0f4d3a; /* dark green */
+      --panel: rgba(255,255,255,0.05);
+      --glass: rgba(255,255,255,0.04);
+      --accent: #d4f1e0;
+      --muted: rgba(255,255,255,0.7);
+      --glass-2: rgba(255,255,255,0.02);
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg), #073823 120%);
+      color:var(--accent);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+
+    .card{
+      width:100%;
+      max-width:820px;
+      background:linear-gradient(180deg,var(--panel), transparent);
+      border-radius:18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      padding:28px;
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:20px;
+      backdrop-filter: blur(6px) saturate(1.1);
+      align-items:center;
+    }
+
+    h1{margin:0 0 6px 0;font-size:20px;letter-spacing:0.2px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .clock{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      align-items:flex-start;
+    }
+
+    /* Big circular timer */
+    .ring-wrap{
+      width:100%;
+      display:flex;
+      gap:18px;
+      align-items:center;
+    }
+    .ring{
+      width:240px;height:240px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      background:conic-gradient(var(--accent) var(--p,0%), transparent 0%);
+      position:relative;box-shadow: inset 0 -8px 40px rgba(0,0,0,0.35);
+    }
+    .ring > .inner{
+      width:86%;height:86%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,var(--glass),var(--glass-2));
+      text-align:center;padding:18px;box-sizing:border-box;
+    }
+    .time{font-size:40px;font-weight:700;line-height:1;color:var(--accent)}
+    .label{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--accent);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    button.primary{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12)}
+    button.danger{border-color:rgba(255,100,100,0.15)}
+
+    .right{
+      padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(0,0,0,0.06),transparent);
+    }
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    .field{display:flex;gap:8px;align-items:center}
+    input[type=number]{width:80px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--accent)}
+    select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--accent)}
+    .preset{display:flex;gap:8px;margin-top:12px}
+    .small{font-size:12px;color:var(--muted)}
+
+    footer.small{font-size:12px;color:var(--muted);margin-top:14px}
+
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr;}
+      .ring{width:200px;height:200px}
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <section class="clock" aria-labelledby="title">
+      <div>
+        <h1 id="title">Focus — Simple Timer</h1>
+        <p class="lead">A minimal, distraction-free focus timer. Start, pause, reset. Works offline in this browser.</p>
+      </div>
+
+      <div class="ring-wrap">
+        <div class="ring" id="ring" style="--p:0%">
+          <div class="inner">
+            <div>
+              <div class="time" id="time">25:00</div>
+              <div class="label" id="state">Ready</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div class="controls">
+            <button id="startBtn" class="primary">Start</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn" class="danger">Reset</button>
+            <button id="fullBtn">Fullscreen</button>
+          </div>
+
+          <div style="margin-top:12px" class="small">Shortcuts: <strong>S</strong>=Start, <strong>P</strong>=Pause, <strong>R</strong>=Reset</div>
+
+        </div>
+      </div>
+
+      <footer class="small">Tip: set a short goal, work with full focus, then take a small break.</footer>
+    </section>
+
+    <aside class="right" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle" style="margin-top:0">Settings</h2>
+      <label for="minutes">Minutes</label>
+      <div class="field">
+        <input type="number" id="minutes" min="1" max="180" value="25" aria-label="minutes input" />
+        <button id="applyBtn">Apply</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <label for="alarm">Alarm</label>
+        <select id="alarm">
+          <option value="beep">Beep</option>
+          <option value="vibrate">Vibrate (mobile)</option>
+          <option value="none">Silent</option>
+        </select>
+      </div>
+
+      <div class="preset">
+        <button data-min="25">25</button>
+        <button data-min="50">50</button>
+        <button data-min="15">15</button>
+        <button data-min="5">5</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <label>Save last length</label>
+        <div class="small">Your chosen minutes are stored in local browser storage.</div>
+      </div>
+
+    </aside>
+  </main>
+
+  <script>
+    // Elements
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const fullBtn = document.getElementById('fullBtn');
+    const timeEl = document.getElementById('time');
+    const stateEl = document.getElementById('state');
+    const ring = document.getElementById('ring');
+    const minutesInput = document.getElementById('minutes');
+    const applyBtn = document.getElementById('applyBtn');
+    const alarmSelect = document.getElementById('alarm');
+
+    // State
+    let totalSeconds = 25*60;
+    let remaining = totalSeconds;
+    let timerId = null;
+    let running = false;
+
+    // load saved
+    const saved = localStorage.getItem('focus_minutes');
+    if(saved){ minutesInput.value = saved; totalSeconds = parseInt(saved,10)*60; remaining = totalSeconds; }
+    updateDisplay();
+
+    function formatTime(s){
+      const mm = Math.floor(s/60).toString().padStart(2,'0');
+      const ss = (s%60).toString().padStart(2,'0');
+      return `${mm}:${ss}`;
+    }
+
+    function updateDisplay(){
+      timeEl.textContent = formatTime(remaining);
+      const percent = ((totalSeconds - remaining) / totalSeconds) * 100;
+      ring.style.setProperty('--p', percent + '%');
+    }
+
+    function tick(){
+      if(remaining>0){ remaining--; updateDisplay(); }
+      else{ finish(); }
+    }
+
+    function start(){
+      if(running) return;
+      if(remaining<=0) remaining = totalSeconds;
+      timerId = setInterval(tick,1000);
+      running=true; stateEl.textContent='Working'; startBtn.textContent='Running';
+      document.title = formatTime(remaining) + ' — Focus';
+    }
+    function pause(){
+      if(!running) return;
+      clearInterval(timerId); timerId=null; running=false; stateEl.textContent='Paused'; startBtn.textContent='Start';
+      document.title = 'Focus';
+    }
+    function reset(){
+      pause(); remaining = totalSeconds; updateDisplay(); stateEl.textContent='Ready';
+    }
+    function finish(){
+      pause(); remaining=0; updateDisplay(); stateEl.textContent='Done';
+      document.title = 'Done — Focus';
+      const alarm = alarmSelect.value;
+      if(alarm==='beep') playBeep();
+      if(alarm==='vibrate' && navigator.vibrate) navigator.vibrate([300,100,300]);
+    }
+
+    function playBeep(){
+      // very small oscillator beep
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type='sine'; o.frequency.value=880;
+        g.gain.value=0.08;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        setTimeout(()=>{ o.stop(); ctx.close(); }, 400);
+      }catch(e){ console.warn('audio failed',e); }
+    }
+
+    // event bindings
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
+    fullBtn.addEventListener('click', ()=>{
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+    });
+
+    applyBtn.addEventListener('click', ()=>{
+      const m = Math.max(1, Math.min(180, Number(minutesInput.value)||25));
+      minutesInput.value = m;
+      totalSeconds = m*60; remaining = totalSeconds;
+      localStorage.setItem('focus_minutes', String(m));
+      updateDisplay();
+    });
+
+    document.querySelectorAll('.preset button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        minutesInput.value = b.dataset.min; applyBtn.click();
+      });
+    });
+
+    // keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.target.matches('input')) return; // ignore when typing in inputs
+      if(e.key.toLowerCase()==='s') start();
+      if(e.key.toLowerCase()==='p') pause();
+      if(e.key.toLowerCase()==='r') reset();
+    });
+
+    // update title every second while running
+    setInterval(()=>{ if(running) document.title = formatTime(remaining) + ' — Focus'; }, 1000);
+
+    // initialize accessible display
+    updateDisplay();
+  </script>
+</body>
+</html>
